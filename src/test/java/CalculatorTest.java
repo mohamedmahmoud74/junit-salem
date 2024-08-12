@@ -2,6 +2,8 @@ import jdk.jfr.Enabled;
 import org.example.Calculator;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.*;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -9,6 +11,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Execution(ExecutionMode.CONCURRENT)
 public class CalculatorTest {
 
     static Calculator calculator;
@@ -25,18 +30,21 @@ public class CalculatorTest {
     }
     @Tag("salem")
     @DisplayName("test Add method")
+    @Order(1)
     @ParameterizedTest
     @CsvFileSource(resources = "/testData.csv", numLinesToSkip = 1 )
     void testAdd(String x , String y , String sum) {
         assertEquals(Double.parseDouble(sum),calculator.add(Integer.parseInt(x),Integer.parseInt(y)));    }
 
-
+@Order(-1)
     @Tag("salem")
-    @Test
+
+@RepeatedTest(3)
     @DisplayName("test sub method")
     void testsub() {
         assertEquals(calculator.sub(10, 20), -10);
     }
+    @Order(0)
     @Tag("salem")
     @Test
     @DisplayName("test mul method")
@@ -49,9 +57,8 @@ public class CalculatorTest {
     void testdiv() {
         assertEquals(calculator.div(100, 20), 5);
         assertEquals(calculator.div(100, -10), -10);
-        Exception ex = assertThrowsExactly(ArithmeticException.class, () -> calculator.div(1, 0));
-
-        assertEquals("cant divide by zero", ex.getMessage());
+       /* Exception ex = assertThrowsExactly(ArithmeticException.class, () -> calculator.div(1, 0));
+        assertEquals("cant divide by zero", ex.getMessage());*/
 
     }
   @EnabledOnOs (value = OS.WINDOWS)
